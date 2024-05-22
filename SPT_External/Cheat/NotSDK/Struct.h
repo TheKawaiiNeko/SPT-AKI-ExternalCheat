@@ -28,29 +28,20 @@ struct GameObjectManager
 
 struct TransformAccessReadOnly
 {
-	uintptr_t	pTransformData;
+　　uintptr_t	pTransformData;
     int			index;
 };
 
 struct TransformData
 {
     uintptr_t pTransformArray;
-	uintptr_t pTransformIndices;
+　　uintptr_t pTransformIndices;
 };
 
-class ListInternal
+struct UnityList
 {
-public:
-    char pad_0x0000[0x20];
-    uintptr_t* firstEntry;
-};
-
-class List
-{
-public:
-    char pad_0x0000[0x10];
-    ListInternal* listBase;
-    __int32 itemCount;
+	uintptr_t Base = 0x10;
+	int Count = 0x18;
 };
 
 struct cameras
