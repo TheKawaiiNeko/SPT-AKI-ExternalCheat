@@ -5,9 +5,6 @@ void Cheat::RenderInfo()
     // FrameRate
     ImGui::GetBackgroundDrawList()->AddText(ImVec2(8.f, 8.f), ImColor(1.f, 1.f, 1.f, 1.f), std::to_string((int)ImGui::GetIO().Framerate).c_str());
 
-    if (EFT.InitAddress())
-        ImGui::GetBackgroundDrawList()->AddText(ImVec2(8.f, 24.f), ImColor(1.f, 1.f, 1.f, 1.f), std::to_string((int)EFT.localGameWorld).c_str());
-
     // Crosshair?
     // FOV Circle?
 }
@@ -15,47 +12,64 @@ void Cheat::RenderInfo()
 void Cheat::RenderMenu()
 {
     ImGui::SetNextWindowSize(ImVec2(600.f, 550.f));
-    ImGui::Begin("SPT-AKI [ EXTERNAL ]", &g.ShowMenu, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+　　ImGui::Begin("SPT-AKI [ EXTERNAL ]", &g.ShowMenu, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
-    ImGui::Checkbox("ESP", &g.ESP);
-    ImGui::Checkbox("ESP Line", &g.ESP_Line);
-    ImGui::Checkbox("ESP Distance", &g.ESP_Distance);
+　　ImGui::Checkbox("ESP", &g.ESP);
+　　ImGui::Checkbox("ESP Box", &g.ESP_Box);
+　　ImGui::Checkbox("ESP Line", &g.ESP_Line);
+　　ImGui::Checkbox("ESP Healthbar", &g.ESP_Healthbar);
+　　ImGui::Checkbox("ESP Distance", &g.ESP_Distance);
 
-    ImGui::End();
+　　ImGui::End();
 }
 
 void Cheat::RenderESP()
 {
     // GetLocal
+　　CPlayer* pLocal = &local;
+　　if (!pLocal->Update())
+    　　return;
 
+　　EFT.UpdateViewMatrix();
 
-    for (auto player : EntityList)
-    {
-        CPlayer pl, *pEntity = &pl;
-        pEntity->ptr = player;
-        if (!pEntity->Update())
-            continue;
+　　for (auto player : EntityList)
+　　{
+    　　CPlayer *pEntity = &player;
+    　　if (!pEntity->Update())
+        　　continue;
 
-        Vector2 g_Screen = EFT.WorldToScreen(pEntity->BasePos);
-        Vector2 g_headScreen = EFT.WorldToScreen(pEntity->HeadPos);
-        Vector2 g_Neck = EFT.WorldToScreen(pEntity->NeckPos);
+    　　float distance = GetDistance(pLocal->BasePos, pEntity->BasePos);
 
-        if (g_Screen == Vector2(0.f, 0.f) || g_headScreen == Vector2(0.f, 0.f) || g_Neck == Vector2(0.f, 0.f))
-            continue;
+    　　Vector2 g_Screen{}, g_HeadScreen{}, g_NeckScreen{};
+    　　if (!EFT.WorldToScreen(pEntity->BasePos, g_Screen) || !EFT.WorldToScreen(pEntity->HeadPos, g_HeadScreen) || !EFT.WorldToScreen(pEntity->NeckPos, g_NeckScreen))
+        　　continue;
 
-        float NeckToHead = (g_Neck.y - g_headScreen.y) * 3.f;
-        float pHeight = g_Screen.y - g_headScreen.y + NeckToHead;
-        float pWidth = pHeight / 3.5f;
+    　　float NeckToHead = (g_NeckScreen.y - g_HeadScreen.y) * 3.f;
+    　　float pHeight = g_Screen.y - g_HeadScreen.y + NeckToHead;
+    　　float pWidth = pHeight / 3.5f;
 
-        //float Distance = GetDistance(pEntity->BasePos, );
+    　　// Line
+    　　if (g.ESP_Line)
+        　　DrawLine(ImVec2(g.GameSize.right / 2.f, g.GameSize.bottom), ImVec2(g_Screen.x, g_Screen.y), ImColor(1.f, 0.f, 0.f, 0.f), 1.f);
 
-        // 2D Box
-        DrawLine(ImVec2(g_Screen.x - pWidth, g_headScreen.y - NeckToHead), ImVec2(g_Screen.x + pWidth, g_headScreen.y - NeckToHead), ImColor(1.f, 0.f, 0.f, 1.f), 1.f);
-        DrawLine(ImVec2(g_Screen.x - pWidth, g_Screen.y), ImVec2(g_Screen.x - pWidth, g_headScreen.y - NeckToHead), ImColor(1.f, 0.f, 0.f, 1.f), 1.f);
-        DrawLine(ImVec2(g_Screen.x + pWidth, g_Screen.y), ImVec2(g_Screen.x + pWidth, g_headScreen.y - NeckToHead), ImColor(1.f, 0.f, 0.f, 1.f), 1.f);
-        DrawLine(ImVec2(g_Screen.x - pWidth, g_Screen.y), ImVec2(g_Screen.x + pWidth, g_Screen.y), ImColor(1.f, 0.f, 0.f, 1.f), 1.f);
-    
-        // Healthbar
-        HealthBar(g_Screen.x - pWidth - 4.f, g_Screen.y, 2.f, -pHeight, pEntity->Health, pEntity->MaxHealth);
-    }
+    　　// 2D Box
+    　　if (g.ESP_Box)
+    　　{
+        　　DrawLine(ImVec2(g_Screen.x - pWidth, g_HeadScreen.y - NeckToHead), ImVec2(g_Screen.x + pWidth, g_HeadScreen.y - NeckToHead), ImColor(1.f, 0.f, 0.f, 1.f), 1.f);
+        　　DrawLine(ImVec2(g_Screen.x - pWidth, g_Screen.y), ImVec2(g_Screen.x - pWidth, g_HeadScreen.y - NeckToHead), ImColor(1.f, 0.f, 0.f, 1.f), 1.f);
+        　　DrawLine(ImVec2(g_Screen.x + pWidth, g_Screen.y), ImVec2(g_Screen.x + pWidth, g_HeadScreen.y - NeckToHead), ImColor(1.f, 0.f, 0.f, 1.f), 1.f);
+        　　DrawLine(ImVec2(g_Screen.x - pWidth, g_Screen.y), ImVec2(g_Screen.x + pWidth, g_Screen.y), ImColor(1.f, 0.f, 0.f, 1.f), 1.f);
+    　　}
+
+    　　// Healthbar
+    　　if (g.ESP_Healthbar)
+        　　HealthBar(g_Screen.x - pWidth - 4.f, g_Screen.y, 2.f, -pHeight, pEntity->Health, pEntity->MaxHealth);
+
+    　　// Distance
+    　　if (g.ESP_Distance)
+    　　{
+        　　std::string DistStr = std::to_string((int)distance) + "m";
+        　　String(ImVec2(g_Screen.x - (ImGui::CalcTextSize(DistStr.c_str()).x / 2.f), g_Screen.y), ImColor(1.f, 1.f, 1.f, 1.f), DistStr.c_str());
+    　　}  
+　　}
 }
