@@ -1,41 +1,11 @@
 #include "NotSDK.h"
 #include "..\..\Utils\Globals\Globals.h"
 
-bool Tarkov::GetCamera()
+void Tarkov::UpdateViewMatrix()
 {
-    cameras all_cameras = m.Read<cameras>(m.Read<uint64_t>(m.BaseAddress + 0x179F500));
-
-    if (all_cameras.count == 0)
-        return false;
-
-    for (int i = 0; i < all_cameras.count; i++)
-    {
-        auto camera = m.Read<uint64_t>(all_cameras.list + ((uint64_t)i * 0x8));
-        if (camera != NULL)
-        {
-            auto camera_obj = m.Read<uint64_t>(camera + 0x30);
-            auto camera_name_ptr = m.Read<uint64_t>(camera_obj + 0x60);
-
-            if (!camera_name_ptr)
-                return false;
-
-            char name[64];
-            for (int j = 0; j < sizeof(name); j++)
-            {
-                name[j] = m.Read<char>(camera_name_ptr + j);
-                if (name[j] == NULL)
-                    break;
-            }
-
-            if (strcmp(name, "FPS Camera") == 0)
-            {
-                fpsCamera = camera_obj;
-                return true;
-            }
-        }
-    }
-
-    return false;
+    uint64_t base = m.Read<uint64_t>(fpsCamera + 0x30);
+    base = m.Read<uint64_t>(base + 0x18);
+    MatrixFPS = m.Read<Matrix>(base + 0xDC);
 }
 
 bool Tarkov::InitAddress()
@@ -74,6 +44,43 @@ bool Tarkov::InitAddress()
     return true;
 }
 
+bool Tarkov::GetCamera()
+{
+    cameras all_cameras = m.Read<cameras>(m.Read<uint64_t>(m.BaseAddress + 0x179F500));
+
+    if (all_cameras.count == 0)
+        return false;
+
+    for (int i = 0; i < all_cameras.count; i++)
+    {
+        auto camera = m.Read<uint64_t>(all_cameras.list + ((uint64_t)i * 0x8));
+        if (camera != NULL)
+        {
+            auto camera_obj = m.Read<uint64_t>(camera + 0x30);
+            auto camera_name_ptr = m.Read<uint64_t>(camera_obj + 0x60);
+
+            if (!camera_name_ptr)
+                return false;
+
+            char name[64];
+            for (int j = 0; j < sizeof(name); j++)
+            {
+                name[j] = m.Read<char>(camera_name_ptr + j);
+                if (name[j] == NULL)
+                    break;
+            }
+
+            if (strcmp(name, "FPS Camera") == 0)
+            {
+                fpsCamera = camera_obj;
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 uintptr_t Tarkov::GetObjectFromList(uintptr_t listPtr, uintptr_t lastObjectPtr, const char* objectName)
 {
     char ObjectName[128]{};
@@ -109,12 +116,8 @@ uintptr_t Tarkov::GetObjectFromList(uintptr_t listPtr, uintptr_t lastObjectPtr, 
     return 0;
 }
 
-Vector2 Tarkov::WorldToScreen(const Vector3& position)
+bool Tarkov::WorldToScreen(const Vector3& position, Vector2& vOut)
 {
-    uint64_t base = m.Read<uint64_t>(fpsCamera + 0x30);
-    base = m.Read<uint64_t>(base + 0x18);
-    MatrixFPS = m.Read<Matrix>(base + 0xDC);
-
     Matrix m = MatrixFPS.Transpose();
     Vector3 translationVector = Vector3(m._41, m._42, m._43);
     Vector3 up = Vector3(m._21, m._22, m._23);
@@ -123,12 +126,12 @@ Vector2 Tarkov::WorldToScreen(const Vector3& position)
     float w = translationVector.Dot(position) + m._44;
 
     if (w < 0.098f)
-        return Vector2(0.f, 0.f);
+        return false;
 
     float y = up.Dot(position) + m._24;
     float x = right.Dot(position) + m._14;
 
-    return Vector2((g.GameSize.right / 2) * (1.f + x / w), (g.GameSize.bottom / 2) * (1.f - y / w));
+    vOut = Vector2((g.GameSize.right / 2) * (1.f + x / w), (g.GameSize.bottom / 2) * (1.f - y / w));
 }
 
 // From Battlefield 4
