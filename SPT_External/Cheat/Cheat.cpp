@@ -4,31 +4,26 @@ void Cheat::UpdateList()
 {
 	while (g.Run)
 	{
-		std::vector<uintptr_t> TempList;
+		std::vector<CPlayer> TempList;
+        Sleep(5);
 
-        uintptr_t OnlineUsers = m.Read<uintptr_t>(EFT.localGameWorld + Offsets::LocalGameWorld::RegisteredPlayers);
-
-        if (!OnlineUsers)
-        {
-            Sleep(5);
+        if (!EFT.InitAddress())
             continue;
-        }
 
-        int pCount = m.Read<int>(OnlineUsers + offsetof(List, itemCount));
-        uintptr_t pListPtr = m.Read<uintptr_t>(OnlineUsers + offsetof(List, listBase));
+        uintptr_t RegisteredPlayer = m.Read<uintptr_t>(EFT.localGameWorld + Offsets::LocalGameWorld::RegisteredPlayers);
+        UnityList PlayerArray = m.Read<UnityList>(RegisteredPlayer + 0x10);
 
-        if (!pListPtr || pCount <= 0)
-        {
-            Sleep(5);
+        if (!PlayerArray.Base || PlayerArray.Count <= 0)
             continue;
-        }
 
-        for (int i = 0; i < pCount; i++)
+        local.ptr = m.Read<uintptr_t>(PlayerArray.Base + 0x20);
+
+        for (int i = 1; i < PlayerArray.Count; i++)
         {
-            // Update PlayerData
-            uintptr_t player = m.Read<uintptr_t>(pListPtr + (offsetof(ListInternal, firstEntry) + (i * 8)));
+            CPlayer player{};
+            player.ptr = m.Read<uintptr_t>(PlayerArray.Base + 0x20 + (i * 8));
 
-            if (!player)
+            if (!player.IsValid())
                 continue;
 
             TempList.push_back(player);
@@ -37,6 +32,6 @@ void Cheat::UpdateList()
         EntityList = TempList;
         TempList.clear();
 
-        Sleep(250);
+        Sleep(1000);
 	}
 }
