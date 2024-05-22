@@ -16,7 +16,8 @@ struct Globals
 	bool ESP = true;
 	bool ESP_Box = true;
 	bool ESP_Line = true;
-	bool ESP_Distance = true;
+	bool ESP_Healthbar = true;
+	bool ESP_Distance = false;
 };
 
 extern struct Globals g;
