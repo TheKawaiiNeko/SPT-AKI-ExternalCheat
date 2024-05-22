@@ -28,19 +28,19 @@ struct GameObjectManager
 
 struct TransformAccessReadOnly
 {
-　　uintptr_t	pTransformData;
+	uint64_t	pTransformData;
     int			index;
 };
 
 struct TransformData
 {
-    uintptr_t pTransformArray;
-　　uintptr_t pTransformIndices;
+    uint64_t pTransformArray;
+	uint64_t pTransformIndices;
 };
 
 struct UnityList
 {
-	uintptr_t Base = 0x10;
+	uint64_t Base = 0x10;
 	int Count = 0x18;
 };
 
