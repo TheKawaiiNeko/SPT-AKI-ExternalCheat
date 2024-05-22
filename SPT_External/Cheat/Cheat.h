@@ -12,14 +12,14 @@ extern bool IsKeyDown(int VK);
 class Cheat
 {
 public:
-　　void UpdateList();
-　　void RenderInfo();
-　　void RenderMenu();
-　　void RenderESP();
+    void UpdateList();
+    void RenderInfo();
+    void RenderMenu();
+    void RenderESP();
 private:
     // Some Resource
- 　　CPlayer local{};
- 　　std::vector<CPlayer> EntityList;
+    CPlayer local{};
+    std::vector<CPlayer> EntityList;
 
     // Colors
     ImColor Col_ESP_PMC = { 1.f, 0.f, 0.f, 1.f };
