@@ -27,24 +27,18 @@ public:
 		ReadProcessMemory(pHandle, reinterpret_cast<const void*>(address), &value, sizeof(T), NULL);
 		return value;
 	}
-
 	template <typename T>
 	constexpr void Write(const uintptr_t& address, const T& value) const noexcept
 	{
 		WriteProcessMemory(pHandle, reinterpret_cast<void*>(address), &value, sizeof(T), NULL);
 	}
-
-	std::string ReadString(const uint64_t address, size_t len)
+	std::string ReadString(const uint64_t address, const int size)
 	{
-		std::string retval;
-		char tmp[1024];
+	char read_val[4096]{};
+	ReadProcessMemory(pHandle, (void*)(address), read_val, sizeof(size), nullptr);
 
-		ReadProcessMemory(pHandle, (void*)(address), tmp, sizeof(len), nullptr);
-		retval = tmp;
-
-		return retval;
+	return read_val;
 	}
-
 	uintptr_t ReadChain(uintptr_t address, const std::vector<uint64_t>& offsets)
 	{
 		uintptr_t result = Read<uint64_t>(address + offsets.at(0));
