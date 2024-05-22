@@ -46,17 +46,17 @@ private:
     uintptr_t GetObjectFromList(uintptr_t listPtr, uintptr_t lastObjectPtr, const char* objectName);
 public:
     // EFT Data
-	GameObjectManager GOM{};
+　　GameObjectManager GOM{};
     uintptr_t GameWorld = 0;
     uintptr_t localGameWorld = 0;
     uintptr_t fpsCamera = 0;
-	Matrix MatrixFPS{};
+　　Matrix MatrixFPS{};
 
-    // SomeFunctions
-    bool InitAddress();
-	bool GetCamera();
-
-    Vector2 WorldToScreen(const Vector3& position);
+　　// SomeFunctions
+　　bool InitAddress();
+　　bool GetCamera();
+　　void UpdateViewMatrix();
+　　bool WorldToScreen(const Vector3& position, Vector2& vOut);
 };
 
 class CPlayer
