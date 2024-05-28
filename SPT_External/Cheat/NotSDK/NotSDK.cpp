@@ -62,7 +62,7 @@ bool Tarkov::GetCamera()
             if (!camera_name_ptr)
                 return false;
 
-            char name[64];
+            char name[64]{};
             for (int j = 0; j < sizeof(name); j++)
             {
                 name[j] = m.Read<char>(camera_name_ptr + j);

@@ -9,13 +9,20 @@ void Cheat::RenderInfo()
     // FOV Circle?
 }
 
-
 void Cheat::RenderMenu()
 {
-    ImGui::SetNextWindowSize(ImVec2(600.f, 550.f));
+    ImGui::SetNextWindowSize(ImVec2(300.f, 250.f));
     ImGui::Begin("SPT-AKI [ EXTERNAL ]", &g.ShowMenu, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
+    ImGui::Text("Visual");
+    ImGui::Separator();
     ImGui::Checkbox("ESP", &g.ESP);
+    ImGui::Checkbox("Exfil ESP", &g.ExfilESP);
+
+    ImGui::NewLine();
+
+    ImGui::Text("ESP Options");
+    ImGui::Separator();
     ImGui::Checkbox("ESP Box", &g.ESP_Box);
     ImGui::Checkbox("ESP Line", &g.ESP_Line);
     ImGui::Checkbox("ESP Healthbar", &g.ESP_Healthbar);
@@ -27,15 +34,16 @@ void Cheat::RenderMenu()
 void Cheat::RenderESP()
 {
     // GetLocal
-    CPlayer* pLocal = &local;
+    Player* pLocal = &local;
     if (!pLocal->Update())
         return;
 
     EFT.UpdateViewMatrix();
 
-    for (auto player : EntityList)
+    // Player
+    for (auto& player : EntityList)
     {
-        CPlayer* pEntity = &player;
+        Player* pEntity = &player;
         if (!pEntity->Update())
             continue;
 
@@ -47,7 +55,7 @@ void Cheat::RenderESP()
 
         float NeckToHead = (g_NeckScreen.y - g_HeadScreen.y) * 3.f;
         float pHeight = g_Screen.y - g_HeadScreen.y + NeckToHead;
-        float pWidth = pHeight / 3.5f;
+        float pWidth = pHeight / 3.5f; // Half
 
         // Line
         if (g.ESP_Line)
@@ -71,6 +79,19 @@ void Cheat::RenderESP()
         {
             std::string DistStr = std::to_string((int)distance) + "m";
             String(ImVec2(g_Screen.x - (ImGui::CalcTextSize(DistStr.c_str()).x / 2.f), g_Screen.y), ImColor(1.f, 1.f, 1.f, 1.f), DistStr.c_str());
+        }
+    }
+    
+    // Exfil
+    if (g.ExfilESP)
+    {
+        for (const auto& exfil : ExfilList)
+        {
+            Vector2 ExfilScreen{};
+            if (!EFT.WorldToScreen(exfil.pos, ExfilScreen))
+                continue;
+
+            String(ImVec2(ExfilScreen.x - ImGui::CalcTextSize(exfil.Name).x, ExfilScreen.y), ImColor(1.f, 1.f, 1.f, 1.f), exfil.Name);
         }
     }
 }

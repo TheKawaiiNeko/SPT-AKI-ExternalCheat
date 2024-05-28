@@ -3,7 +3,8 @@
 #include "..\ImGui\imgui_impl_win32.h"
 #include "..\ImGui\imgui_impl_dx11.h"
 #include "..\Utils\Globals\Globals.h"
-#include "NotSDK\NotSDK.h"
+#include "NotSDK/Player/Player.h"
+#include "NotSDK/Exfil/Exfil.h"
 #include <vector>
 
 extern Tarkov EFT;
@@ -18,8 +19,9 @@ public:
     void RenderESP();
 private:
     // Some Resource
-    CPlayer local{};
-    std::vector<CPlayer> EntityList;
+    Player local{};
+    std::vector<Player> EntityList;
+    std::vector<Exfil> ExfilList;
 
     // Colors
     ImColor Col_ESP_PMC = { 1.f, 0.f, 0.f, 1.f };

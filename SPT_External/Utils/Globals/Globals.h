@@ -14,10 +14,11 @@ struct Globals
 
 	// Visual
 	bool ESP = true;
+	bool ExfilESP = true;
 	bool ESP_Box = true;
 	bool ESP_Line = true;
 	bool ESP_Healthbar = true;
-	bool ESP_Distance = false;
+	bool ESP_Distance = true;
 };
 
 extern struct Globals g;

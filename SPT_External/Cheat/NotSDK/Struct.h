@@ -16,6 +16,13 @@ struct BaseObject
     uint64_t nextObjectLink;
     uint64_t object;
 };
+
+struct UnityList
+{
+	uint64_t Base = 0x10;
+	int Count = 0x18;
+};
+
 struct GameObjectManager
 {
     uint64_t lastTaggedObject;
@@ -36,12 +43,6 @@ struct TransformData
 {
     uint64_t pTransformArray;
 	uint64_t pTransformIndices;
-};
-
-struct UnityList
-{
-	uint64_t Base = 0x10;
-	int Count = 0x18;
 };
 
 struct cameras
