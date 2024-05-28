@@ -13,6 +13,7 @@ SPT-AKI Version 3.8.0 ~ 3.8.* (GameVersion : EFT 0.14.1.2.29197 Only) 専用の�
 * ESP Line
 * ESP Healthbar
 * ESP Distance
+* Exfil ESP
 
 ## Customize Example (My version)
 ![image](https://github.com/TheKawaiiNeko/SPT-AKI-ExternalCheat/assets/159750768/750ee70c-410f-4876-85de-da0167cf89e7)
